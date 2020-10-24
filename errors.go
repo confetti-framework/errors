@@ -161,6 +161,10 @@ func (w *withLevel) Wrap(message string, args ...interface{}) error {
 	return WithMessage(w, message, args...)
 }
 
+func (w *withLevel) Level(level syslog.Level) *withLevel {
+	return WithLevel(w, level)
+}
+
 func FindLevel(err error) syslog.Level {
 	var level syslog.Level
 
@@ -174,7 +178,7 @@ func FindLevel(err error) syslog.Level {
 	return level
 }
 
-func (f *fundamental) Wrap(message string, args ...interface{}) error {
+func (f *fundamental) Wrap(message string, args ...interface{}) *withMessage {
 	return WithMessage(f, message, args...)
 }
 
@@ -242,13 +246,9 @@ func Wrap(err error, message string, args ...interface{}) *withStack {
 }
 
 // WithMessage annotates err with a new message.
-// If err is nil, WithMessage returns nil.
-func WithMessage(err error, message string, args ...interface{}) error {
+func WithMessage(err error, message string, args ...interface{}) *withMessage {
 	if len(args) > 0 {
 		message = fmt.Sprintf(message, args...)
-	}
-	if err == nil {
-		return nil
 	}
 	return &withMessage{
 		cause: err,
@@ -261,7 +261,12 @@ type withMessage struct {
 	msg   string
 }
 
-func (w *withMessage) Error() string { return w.msg + ": " + w.cause.Error() }
+func (w *withMessage) Error() string {
+	if w.cause == nil {
+		return w.msg
+	}
+	return w.msg + ": " + w.cause.Error()
+}
 
 func (w *withMessage) Cause() error { return w.cause }
 
@@ -277,6 +282,14 @@ func (w *withMessage) Format(s fmt.State, verb rune) {
 	case 's', 'q':
 		io.WriteString(s, w.Error())
 	}
+}
+
+func (w *withMessage) Level(level syslog.Level) *withLevel {
+	return WithLevel(w, level)
+}
+
+func (w *withMessage) Wrap(message string, args ...interface{}) *withMessage {
+	return WithMessage(w, message, args...)
 }
 
 // Cause returns the underlying cause of the error, if possible.

@@ -86,6 +86,27 @@ func TestWrapFluentLevel(t *testing.T) {
 	assert.Equal(t, "system error: database error", err.Error())
 }
 
+func TestLevelFluentLevel(t *testing.T) {
+	wrapper := WithLevel(New("database error"), syslog.DEBUG)
+	err := wrapper.Level(level.DEBUG)
+	assert.Equal(t, level.DEBUG, FindLevel(err))
+	assert.Equal(t, "database error", err.Error())
+}
+
+func TestFundamentalFluentWrapFluentLevel(t *testing.T) {
+	wrapper := New("database error").Wrap("system error")
+	err := wrapper.Level(level.DEBUG)
+	assert.Equal(t, level.DEBUG, FindLevel(err))
+	assert.Equal(t, "system error: database error", err.Error())
+}
+
+func TestFundamentalFluentWrapFluentWrap(t *testing.T) {
+	wrapper := New("database error").Wrap("system error").Wrap("attention")
+	err := wrapper.Level(level.DEBUG)
+	assert.Equal(t, level.DEBUG, FindLevel(err))
+	assert.Equal(t, "attention: system error: database error", err.Error())
+}
+
 func TestLevelWithoutLevel(t *testing.T) {
 	err := New("database error")
 	assert.Equal(t, level.EMERGENCY, FindLevel(err))
@@ -240,7 +261,7 @@ func TestWithStack(t *testing.T) {
 }
 
 func TestWithMessageNil(t *testing.T) {
-	got := WithMessage(nil, "no error")
+	got := WithMessage(nil, "no error").Cause()
 	if got != nil {
 		t.Errorf("WithMessage(nil, \"no error\"): got %#v, expected nil", got)
 	}
@@ -266,9 +287,10 @@ func TestWithMessage(t *testing.T) {
 
 func TestWithMessagefNil(t *testing.T) {
 	got := WithMessage(nil, "no error")
-	if got != nil {
-		t.Errorf("WithMessage(nil, \"no error\"): got %#v, expected nil", got)
+	if got.Cause() != nil {
+		t.Errorf("WithMessage(nil, \"no error\"): got %#v, expected nil", got.Cause())
 	}
+	assert.Equal(t, "no error", got.Error())
 }
 
 func TestWithMessagef(t *testing.T) {
