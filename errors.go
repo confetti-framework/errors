@@ -94,6 +94,7 @@ package errors
 
 import (
 	"fmt"
+	syslog "github.com/lanvard/syslog/level"
 	"io"
 )
 
@@ -101,7 +102,7 @@ import (
 // according to a format specifier and returns the string
 // as a value that satisfies error.
 // New also records the stack trace at the point it was called.
-func New(message string, args ...interface{}) error {
+func New(message string, args ...interface{}) *fundamental {
 	if len(args) > 0 {
 		message = fmt.Sprintf(message, args...)
 	}
@@ -135,6 +136,52 @@ func (f *fundamental) Format(s fmt.State, verb rune) {
 	}
 }
 
+func WithLevel(err error, level syslog.Level) *withLevel {
+	if err == nil {
+		return nil
+	}
+	return &withLevel{
+		err,
+		level,
+	}
+}
+
+type withLevel struct {
+	cause error
+	level syslog.Level
+}
+
+func (w *withLevel) Error() string {
+	return w.cause.Error()
+}
+
+func (w *withLevel) Cause() error { return w.cause }
+
+func (w *withLevel) Wrap(message string, args ...interface{}) error {
+	return WithMessage(w, message, args...)
+}
+
+func FindLevel(err error) syslog.Level {
+	var level syslog.Level
+
+	if level, ok := err.(*withLevel); ok {
+		return level.level
+	}
+
+	if causer, ok := err.(causer); ok {
+		return FindLevel(causer.Cause())
+	}
+	return level
+}
+
+func (f *fundamental) Wrap(message string, args ...interface{}) error {
+	return WithMessage(f, message, args...)
+}
+
+func (f *fundamental) Level(level syslog.Level) *withLevel {
+	return WithLevel(f, level)
+}
+
 // WithStack annotates err with a stack trace at the point WithStack was called.
 // If err is nil, WithStack returns nil.
 func WithStack(err error) error {
@@ -154,9 +201,6 @@ type withStack struct {
 
 func (w *withStack) Cause() error { return w.error }
 
-// Unwrap provides compatibility for Go 1.13 error chains.
-func (w *withStack) Unwrap() error { return w.error }
-
 func (w *withStack) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 'v':
@@ -173,10 +217,14 @@ func (w *withStack) Format(s fmt.State, verb rune) {
 	}
 }
 
+func (w *withStack) Level(level syslog.Level) *withLevel {
+	return WithLevel(w, level)
+}
+
 // Wrap returns an error annotating err with a stack trace
 // at the point Wrap is called, and the supplied message.
 // If err is nil, Wrap returns nil.
-func Wrap(err error, message string, args ...interface{}) error {
+func Wrap(err error, message string, args ...interface{}) *withStack {
 	if err == nil {
 		return nil
 	}
@@ -195,25 +243,16 @@ func Wrap(err error, message string, args ...interface{}) error {
 
 // WithMessage annotates err with a new message.
 // If err is nil, WithMessage returns nil.
-func WithMessage(err error, message string) error {
+func WithMessage(err error, message string, args ...interface{}) error {
+	if len(args) > 0 {
+		message = fmt.Sprintf(message, args...)
+	}
 	if err == nil {
 		return nil
 	}
 	return &withMessage{
 		cause: err,
 		msg:   message,
-	}
-}
-
-// WithMessagef annotates err with the format specifier.
-// If err is nil, WithMessagef returns nil.
-func WithMessagef(err error, format string, args ...interface{}) error {
-	if err == nil {
-		return nil
-	}
-	return &withMessage{
-		cause: err,
-		msg:   fmt.Sprintf(format, args...),
 	}
 }
 
@@ -225,9 +264,6 @@ type withMessage struct {
 func (w *withMessage) Error() string { return w.msg + ": " + w.cause.Error() }
 
 func (w *withMessage) Cause() error { return w.cause }
-
-// Unwrap provides compatibility for Go 1.13 error chains.
-func (w *withMessage) Unwrap() error { return w.cause }
 
 func (w *withMessage) Format(s fmt.State, verb rune) {
 	switch verb {
@@ -255,10 +291,6 @@ func (w *withMessage) Format(s fmt.State, verb rune) {
 // be returned. If the error is nil, nil will be returned without further
 // investigation.
 func Cause(err error) error {
-	type causer interface {
-		Cause() error
-	}
-
 	for err != nil {
 		cause, ok := err.(causer)
 		if !ok {
@@ -267,4 +299,8 @@ func Cause(err error) error {
 		err = cause.Cause()
 	}
 	return err
+}
+
+type causer interface {
+	Cause() error
 }

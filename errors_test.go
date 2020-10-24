@@ -3,6 +3,8 @@ package errors
 import (
 	stderrors "errors"
 	"fmt"
+	"github.com/lanvard/syslog"
+	"github.com/lanvard/syslog/level"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"reflect"
@@ -43,6 +45,15 @@ func TestFundamentalNewWithArguments(t *testing.T) {
 	assert.Equal(t, "user not found in account", err.Error())
 }
 
+func TestFundamentalFluentWrap(t *testing.T) {
+	assert.Equal(t, "database error: not found", New("not found").Wrap("database error").Error())
+}
+
+func TestFundamentalFluentLevel(t *testing.T) {
+	err := New("database error").Level(level.DEBUG)
+	assert.Equal(t, level.DEBUG, FindLevel(err))
+}
+
 func TestWrapNil(t *testing.T) {
 	got := Wrap(nil, "no error")
 	if got != nil {
@@ -66,6 +77,45 @@ func TestWrapFormat(t *testing.T) {
 			t.Errorf("Wrap(%v, %q): got: %v, want %v", tt.err, tt.message, got, tt.want)
 		}
 	}
+}
+
+func TestWrapFluentLevel(t *testing.T) {
+	wrapper := Wrap(New("database error"), "system error")
+	err := wrapper.Level(level.DEBUG)
+	assert.Equal(t, level.DEBUG, FindLevel(err))
+	assert.Equal(t, "system error: database error", err.Error())
+}
+
+func TestLevelWithoutLevel(t *testing.T) {
+	err := New("database error")
+	assert.Equal(t, level.EMERGENCY, FindLevel(err))
+}
+
+func TestLevelWithNil(t *testing.T) {
+	assert.Nil(t, WithLevel(nil, syslog.DEBUG))
+}
+
+func TestLevelWithEmergency(t *testing.T) {
+	err := WithLevel(New("database error"), level.EMERGENCY)
+	assert.Equal(t, level.EMERGENCY, FindLevel(err))
+}
+
+func TestLevelWithDebug(t *testing.T) {
+	err := WithLevel(New("database error"), level.DEBUG)
+	assert.Equal(t, level.DEBUG, FindLevel(err))
+}
+
+func TestLevelFromCause(t *testing.T) {
+	var err error
+	err = WithLevel(New("database error"), level.DEBUG)
+	err = Wrap(err, "system error")
+	assert.Equal(t, level.DEBUG, FindLevel(err))
+}
+
+func TestLevelFluentWrap(t *testing.T) {
+	err := WithLevel(New("not found"), syslog.DEBUG)
+	assert.Equal(t, "database error: not found", err.Wrap("database error").Error())
+	assert.Equal(t, level.DEBUG, FindLevel(err.Wrap("database error")))
 }
 
 type nilError struct{}
@@ -215,7 +265,7 @@ func TestWithMessage(t *testing.T) {
 }
 
 func TestWithMessagefNil(t *testing.T) {
-	got := WithMessagef(nil, "no error")
+	got := WithMessage(nil, "no error")
 	if got != nil {
 		t.Errorf("WithMessage(nil, \"no error\"): got %#v, expected nil", got)
 	}
@@ -228,12 +278,12 @@ func TestWithMessagef(t *testing.T) {
 		want    string
 	}{
 		{io.EOF, "read error", "read error: EOF"},
-		{WithMessagef(io.EOF, "read error without format specifier"), "client error", "client error: read error without format specifier: EOF"},
-		{WithMessagef(io.EOF, "read error with %d format specifier", 1), "client error", "client error: read error with 1 format specifier: EOF"},
+		{WithMessage(io.EOF, "read error without format specifier"), "client error", "client error: read error without format specifier: EOF"},
+		{WithMessage(io.EOF, "read error with %d format specifier", 1), "client error", "client error: read error with 1 format specifier: EOF"},
 	}
 
 	for _, tt := range tests {
-		got := WithMessagef(tt.err, tt.message).Error()
+		got := WithMessage(tt.err, tt.message).Error()
 		if got != tt.want {
 			t.Errorf("WithMessage(%v, %q): got: %q, want %q", tt.err, tt.message, got, tt.want)
 		}
