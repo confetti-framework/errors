@@ -1,8 +1,9 @@
 package errors
 
 import (
-	"errors"
+	stderrors "errors"
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"io"
 	"reflect"
 	"testing"
@@ -16,7 +17,7 @@ func TestNew(t *testing.T) {
 		{"", fmt.Errorf("")},
 		{"foo", fmt.Errorf("foo")},
 		{"foo", New("foo")},
-		{"string with format specifiers: %v", errors.New("string with format specifiers: %v")},
+		{"string with format specifiers: %v", stderrors.New("string with format specifiers: %v")},
 	}
 
 	for _, tt := range tests {
@@ -27,6 +28,21 @@ func TestNew(t *testing.T) {
 	}
 }
 
+func TestFundamentalNewWithString(t *testing.T) {
+	err := New("not found")
+	assert.Equal(t, "not found", err.Error())
+}
+
+func TestFundamentalNewWithArgument(t *testing.T) {
+	err := New("%s not found", "user")
+	assert.Equal(t, "user not found", err.Error())
+}
+
+func TestFundamentalNewWithArguments(t *testing.T) {
+	err := New("%s not found in %s", "user", "account")
+	assert.Equal(t, "user not found in account", err.Error())
+}
+
 func TestWrapNil(t *testing.T) {
 	got := Wrap(nil, "no error")
 	if got != nil {
@@ -34,7 +50,7 @@ func TestWrapNil(t *testing.T) {
 	}
 }
 
-func TestWrap(t *testing.T) {
+func TestWrapFormat(t *testing.T) {
 	tests := []struct {
 		err     error
 		message string
@@ -106,28 +122,28 @@ func TestCause(t *testing.T) {
 	}
 }
 
-func TestWrapfNil(t *testing.T) {
-	got := Wrapf(nil, "no error")
+func TestWrapFormatNil(t *testing.T) {
+	got := Wrap(nil, "no error")
 	if got != nil {
-		t.Errorf("Wrapf(nil, \"no error\"): got %#v, expected nil", got)
+		t.Errorf("Wrap(nil, \"no error\"): got %#v, expected nil", got)
 	}
 }
 
-func TestWrapf(t *testing.T) {
+func TestWrap(t *testing.T) {
 	tests := []struct {
 		err     error
 		message string
 		want    string
 	}{
 		{io.EOF, "read error", "read error: EOF"},
-		{Wrapf(io.EOF, "read error without format specifiers"), "client error", "client error: read error without format specifiers: EOF"},
-		{Wrapf(io.EOF, "read error with %d format specifier", 1), "client error", "client error: read error with 1 format specifier: EOF"},
+		{Wrap(io.EOF, "read error without format specifiers"), "client error", "client error: read error without format specifiers: EOF"},
+		{Wrap(io.EOF, "read error with %d format specifier", 1), "client error", "client error: read error with 1 format specifier: EOF"},
 	}
 
 	for _, tt := range tests {
-		got := Wrapf(tt.err, tt.message).Error()
+		got := Wrap(tt.err, tt.message).Error()
 		if got != tt.want {
-			t.Errorf("Wrapf(%v, %q): got: %v, want %v", tt.err, tt.message, got, tt.want)
+			t.Errorf("Wrap(%v, %q): got: %v, want %v", tt.err, tt.message, got, tt.want)
 		}
 	}
 }
@@ -137,14 +153,14 @@ func TestErrorf(t *testing.T) {
 		err  error
 		want string
 	}{
-		{Errorf("read error without format specifiers"), "read error without format specifiers"},
-		{Errorf("read error with %d format specifier", 1), "read error with 1 format specifier"},
+		{New("read error without format specifiers"), "read error without format specifiers"},
+		{New("read error with %d format specifier", 1), "read error with 1 format specifier"},
 	}
 
 	for _, tt := range tests {
 		got := tt.err.Error()
 		if got != tt.want {
-			t.Errorf("Errorf(%v): got: %q, want %q", tt.err, got, tt.want)
+			t.Errorf("New()(%v): got: %q, want %q", tt.err, got, tt.want)
 		}
 	}
 }
@@ -232,11 +248,11 @@ func TestErrorEquality(t *testing.T) {
 	vals := []error{
 		nil,
 		io.EOF,
-		errors.New("EOF"),
+		stderrors.New("EOF"),
 		New("EOF"),
-		Errorf("EOF"),
+		New("EOF"),
 		Wrap(io.EOF, "EOF"),
-		Wrapf(io.EOF, "EOF%d", 2),
+		Wrap(io.EOF, "EOF%d", 2),
 		WithMessage(nil, "whoops"),
 		WithMessage(io.EOF, "whoops"),
 		WithStack(io.EOF),

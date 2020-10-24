@@ -2,8 +2,7 @@ package errors_test
 
 import (
 	"fmt"
-
-	"github.com/pkg/errors"
+	"github.com/lanvard/errors"
 )
 
 func ExampleNew() {
@@ -19,8 +18,8 @@ func ExampleNew_printf() {
 
 	// Example output:
 	// whoops
-	// github.com/pkg/errors_test.ExampleNew_printf
-	//         /home/dfc/src/github.com/pkg/errors/example_test.go:17
+	// github.com/lanvard/errors_test.ExampleNew_printf
+	//         /home/dfc/src/github.com/lanvard/errors/example_test.go:17
 	// testing.runExample
 	//         /home/dfc/go/src/testing/example.go:114
 	// testing.RunExamples
@@ -28,7 +27,7 @@ func ExampleNew_printf() {
 	// testing.(*M).Run
 	//         /home/dfc/go/src/testing/testing.go:744
 	// main.main
-	//         /github.com/pkg/errors/_test/_testmain.go:106
+	//         /github.com/lanvard/errors/_test/_testmain.go:106
 	// runtime.main
 	//         /home/dfc/go/src/runtime/proc.go:183
 	// runtime.goexit
@@ -58,8 +57,8 @@ func ExampleWithStack_printf() {
 
 	// Example Output:
 	// whoops
-	// github.com/pkg/errors_test.ExampleWithStack_printf
-	//         /home/fabstu/go/src/github.com/pkg/errors/example_test.go:55
+	// github.com/lanvard/errors_test.ExampleWithStack_printf
+	//         /home/fabstu/go/src/github.com/lanvard/errors/example_test.go:55
 	// testing.runExample
 	//         /usr/lib/go/src/testing/example.go:114
 	// testing.RunExamples
@@ -67,13 +66,13 @@ func ExampleWithStack_printf() {
 	// testing.(*M).Run
 	//         /usr/lib/go/src/testing/testing.go:744
 	// main.main
-	//         github.com/pkg/errors/_test/_testmain.go:106
+	//         github.com/lanvard/errors/_test/_testmain.go:106
 	// runtime.main
 	//         /usr/lib/go/src/runtime/proc.go:183
 	// runtime.goexit
 	//         /usr/lib/go/src/runtime/asm_amd64.s:2086
-	// github.com/pkg/errors_test.ExampleWithStack_printf
-	//         /home/fabstu/go/src/github.com/pkg/errors/example_test.go:56
+	// github.com/lanvard/errors_test.ExampleWithStack_printf
+	//         /home/fabstu/go/src/github.com/lanvard/errors/example_test.go:56
 	// testing.runExample
 	//         /usr/lib/go/src/testing/example.go:114
 	// testing.RunExamples
@@ -81,7 +80,7 @@ func ExampleWithStack_printf() {
 	// testing.(*M).Run
 	//         /usr/lib/go/src/testing/testing.go:744
 	// main.main
-	//         github.com/pkg/errors/_test/_testmain.go:106
+	//         github.com/lanvard/errors/_test/_testmain.go:106
 	// runtime.main
 	//         /usr/lib/go/src/runtime/proc.go:183
 	// runtime.goexit
@@ -118,10 +117,10 @@ func ExampleWrap_extended() {
 
 	// Example output:
 	// error
-	// github.com/pkg/errors_test.fn
-	//         /home/dfc/src/github.com/pkg/errors/example_test.go:47
-	// github.com/pkg/errors_test.ExampleCause_printf
-	//         /home/dfc/src/github.com/pkg/errors/example_test.go:63
+	// github.com/lanvard/errors_test.fn
+	//         /home/dfc/src/github.com/lanvard/errors/example_test.go:47
+	// github.com/lanvard/errors_test.ExampleCause_printf
+	//         /home/dfc/src/github.com/lanvard/errors/example_test.go:63
 	// testing.runExample
 	//         /home/dfc/go/src/testing/example.go:114
 	// testing.RunExamples
@@ -129,35 +128,35 @@ func ExampleWrap_extended() {
 	// testing.(*M).Run
 	//         /home/dfc/go/src/testing/testing.go:744
 	// main.main
-	//         /github.com/pkg/errors/_test/_testmain.go:104
+	//         /github.com/lanvard/errors/_test/_testmain.go:104
 	// runtime.main
 	//         /home/dfc/go/src/runtime/proc.go:183
 	// runtime.goexit
 	//         /home/dfc/go/src/runtime/asm_amd64.s:2059
-	// github.com/pkg/errors_test.fn
-	// 	  /home/dfc/src/github.com/pkg/errors/example_test.go:48: inner
-	// github.com/pkg/errors_test.fn
-	//        /home/dfc/src/github.com/pkg/errors/example_test.go:49: middle
-	// github.com/pkg/errors_test.fn
-	//      /home/dfc/src/github.com/pkg/errors/example_test.go:50: outer
+	// github.com/lanvard/errors_test.fn
+	// 	  /home/dfc/src/github.com/lanvard/errors/example_test.go:48: inner
+	// github.com/lanvard/errors_test.fn
+	//        /home/dfc/src/github.com/lanvard/errors/example_test.go:49: middle
+	// github.com/lanvard/errors_test.fn
+	//      /home/dfc/src/github.com/lanvard/errors/example_test.go:50: outer
 }
 
-func ExampleWrapf() {
+func ExampleWrapFormat() {
 	cause := errors.New("whoops")
-	err := errors.Wrapf(cause, "oh noes #%d", 2)
+	err := errors.Wrap(cause, "oh noes #%d", 2)
 	fmt.Println(err)
 
 	// Output: oh noes #2: whoops
 }
 
 func ExampleErrorf_extended() {
-	err := errors.Errorf("whoops: %s", "foo")
+	err := errors.New("whoops: %s", "foo")
 	fmt.Printf("%+v", err)
 
 	// Example output:
 	// whoops: foo
-	// github.com/pkg/errors_test.ExampleErrorf
-	//         /home/dfc/src/github.com/pkg/errors/example_test.go:101
+	// github.com/lanvard/errors_test.ExampleErrorf
+	//         /home/dfc/src/github.com/lanvard/errors/example_test.go:101
 	// testing.runExample
 	//         /home/dfc/go/src/testing/example.go:114
 	// testing.RunExamples
@@ -165,7 +164,7 @@ func ExampleErrorf_extended() {
 	// testing.(*M).Run
 	//         /home/dfc/go/src/testing/testing.go:744
 	// main.main
-	//         /github.com/pkg/errors/_test/_testmain.go:102
+	//         /github.com/lanvard/errors/_test/_testmain.go:102
 	// runtime.main
 	//         /home/dfc/go/src/runtime/proc.go:183
 	// runtime.goexit
@@ -186,10 +185,10 @@ func Example_stackTrace() {
 	fmt.Printf("%+v", st[0:2]) // top two frames
 
 	// Example output:
-	// github.com/pkg/errors_test.fn
-	//	/home/dfc/src/github.com/pkg/errors/example_test.go:47
-	// github.com/pkg/errors_test.Example_stackTrace
-	//	/home/dfc/src/github.com/pkg/errors/example_test.go:127
+	// github.com/lanvard/errors_test.fn
+	//	/home/dfc/src/github.com/lanvard/errors/example_test.go:47
+	// github.com/lanvard/errors_test.Example_stackTrace
+	//	/home/dfc/src/github.com/lanvard/errors/example_test.go:127
 }
 
 func ExampleCause_printf() {

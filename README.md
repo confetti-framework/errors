@@ -1,8 +1,8 @@
-# errors [![Travis-CI](https://travis-ci.org/pkg/errors.svg)](https://travis-ci.org/pkg/errors) [![AppVeyor](https://ci.appveyor.com/api/projects/status/b98mptawhudj53ep/branch/master?svg=true)](https://ci.appveyor.com/project/davecheney/errors/branch/master) [![GoDoc](https://godoc.org/github.com/pkg/errors?status.svg)](http://godoc.org/github.com/pkg/errors) [![Report card](https://goreportcard.com/badge/github.com/pkg/errors)](https://goreportcard.com/report/github.com/pkg/errors) [![Sourcegraph](https://sourcegraph.com/github.com/pkg/errors/-/badge.svg)](https://sourcegraph.com/github.com/pkg/errors?badge)
+# errors [![Travis-CI](https://travis-ci.org/lanvard/errors.svg)](https://travis-ci.org/lanvard/errors) [![AppVeyor](https://ci.appveyor.com/api/projects/status/b98mptawhudj53ep/branch/master?svg=true)](https://ci.appveyor.com/project/davecheney/errors/branch/master) [![GoDoc](https://godoc.org/github.com/lanvard/errors?status.svg)](http://godoc.org/github.com/lanvard/errors) [![Report card](https://goreportcard.com/badge/github.com/lanvard/errors)](https://goreportcard.com/report/github.com/lanvard/errors) [![Sourcegraph](https://sourcegraph.com/github.com/lanvard/errors/-/badge.svg)](https://sourcegraph.com/github.com/lanvard/errors?badge)
 
 Package errors provides simple error handling primitives.
 
-`go get github.com/pkg/errors`
+`go get github.com/lanvard/errors`
 
 The traditional error handling idiom in Go is roughly akin to
 ```go
@@ -39,7 +39,7 @@ default:
 }
 ```
 
-[Read the package documentation for more information](https://godoc.org/github.com/pkg/errors).
+[Read the package documentation for more information](https://godoc.org/github.com/lanvard/errors).
 
 ## Roadmap
 

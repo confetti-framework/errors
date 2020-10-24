@@ -65,7 +65,7 @@
 //
 // Retrieving the stack trace of an error or wrapper
 //
-// New, Errorf, Wrap, and Wrapf record a stack trace at the point they are
+// New, errorf, Wrap, and Wrap record a stack trace at the point they are
 // invoked. This information can be retrieved with the following interface:
 //
 //     type stackTracer interface {
@@ -97,21 +97,16 @@ import (
 	"io"
 )
 
-// New returns an error with the supplied message.
+// New returns an error with the supplied message and formats
+// according to a format specifier and returns the string
+// as a value that satisfies error.
 // New also records the stack trace at the point it was called.
-func New(message string) error {
+func New(message string, args ...interface{}) error {
+	if len(args) > 0 {
+		message = fmt.Sprintf(message, args...)
+	}
 	return &fundamental{
 		msg:   message,
-		stack: callers(),
-	}
-}
-
-// Errorf formats according to a format specifier and returns the string
-// as a value that satisfies error.
-// Errorf also records the stack trace at the point it was called.
-func Errorf(format string, args ...interface{}) error {
-	return &fundamental{
-		msg:   fmt.Sprintf(format, args...),
 		stack: callers(),
 	}
 }
@@ -181,30 +176,16 @@ func (w *withStack) Format(s fmt.State, verb rune) {
 // Wrap returns an error annotating err with a stack trace
 // at the point Wrap is called, and the supplied message.
 // If err is nil, Wrap returns nil.
-func Wrap(err error, message string) error {
+func Wrap(err error, message string, args ...interface{}) error {
 	if err == nil {
 		return nil
+	}
+	if len(args) > 0 {
+		message = fmt.Sprintf(message, args...)
 	}
 	err = &withMessage{
 		cause: err,
 		msg:   message,
-	}
-	return &withStack{
-		err,
-		callers(),
-	}
-}
-
-// Wrapf returns an error annotating err with a stack trace
-// at the point Wrapf is called, and the format specifier.
-// If err is nil, Wrapf returns nil.
-func Wrapf(err error, format string, args ...interface{}) error {
-	if err == nil {
-		return nil
-	}
-	err = &withMessage{
-		cause: err,
-		msg:   fmt.Sprintf(format, args...),
 	}
 	return &withStack{
 		err,
@@ -242,7 +223,8 @@ type withMessage struct {
 }
 
 func (w *withMessage) Error() string { return w.msg + ": " + w.cause.Error() }
-func (w *withMessage) Cause() error  { return w.cause }
+
+func (w *withMessage) Cause() error { return w.cause }
 
 // Unwrap provides compatibility for Go 1.13 error chains.
 func (w *withMessage) Unwrap() error { return w.cause }
