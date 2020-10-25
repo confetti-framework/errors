@@ -94,8 +94,9 @@ package errors
 
 import (
 	"fmt"
-	syslog "github.com/lanvard/syslog/level"
+	syslog "github.com/lanvard/syslog/log_level"
 	"io"
+	net "net/http"
 )
 
 // New returns an error with the supplied message and formats
@@ -118,7 +119,9 @@ type fundamental struct {
 	*stack
 }
 
-func (f *fundamental) Error() string { return f.msg }
+func (f *fundamental) Error() string {
+	return f.msg
+}
 
 func (f *fundamental) Format(s fmt.State, verb rune) {
 	switch verb {
@@ -134,6 +137,36 @@ func (f *fundamental) Format(s fmt.State, verb rune) {
 	case 'q':
 		fmt.Fprintf(s, "%q", f.msg)
 	}
+}
+
+func (f *fundamental) StackTrace() StackTrace {
+	return f.stack.StackTrace()
+}
+
+func (f *fundamental) Wrap(message string, args ...interface{}) *withMessage {
+	return WithMessage(f, message, args...)
+}
+
+func (f *fundamental) Level(level syslog.Level) *withLevel {
+	return WithLevel(f, level)
+}
+
+func (f *fundamental) Status(status int) *withStatus {
+	return WithStatus(f, status)
+}
+
+func FindLevel(err error) (syslog.Level, bool) {
+	var level syslog.Level
+
+	if level, ok := err.(*withLevel); ok {
+		return level.level, true
+	}
+
+	if causer, ok := err.(causer); ok {
+		return FindLevel(causer.Cause())
+	}
+
+	return level, false
 }
 
 func WithLevel(err error, level syslog.Level) *withLevel {
@@ -155,7 +188,9 @@ func (w *withLevel) Error() string {
 	return w.cause.Error()
 }
 
-func (w *withLevel) Cause() error { return w.cause }
+func (w *withLevel) Cause() error {
+	return w.cause
+}
 
 func (w *withLevel) Wrap(message string, args ...interface{}) error {
 	return WithMessage(w, message, args...)
@@ -165,25 +200,53 @@ func (w *withLevel) Level(level syslog.Level) *withLevel {
 	return WithLevel(w, level)
 }
 
-func FindLevel(err error) syslog.Level {
-	var level syslog.Level
+func (w *withLevel) Status(status int) *withStatus {
+	return WithStatus(w, status)
+}
 
-	if level, ok := err.(*withLevel); ok {
-		return level.level
+func FindStatus(err error) (int, bool) {
+	if result, ok := err.(*withStatus); ok {
+		return result.status, true
 	}
 
 	if causer, ok := err.(causer); ok {
-		return FindLevel(causer.Cause())
+		return FindStatus(causer.Cause())
 	}
-	return level
+
+	return net.StatusInternalServerError, false
 }
 
-func (f *fundamental) Wrap(message string, args ...interface{}) *withMessage {
-	return WithMessage(f, message, args...)
+func WithStatus(err error, status int) *withStatus {
+	if err == nil {
+		return nil
+	}
+	return &withStatus{
+		err,
+		status,
+	}
 }
 
-func (f *fundamental) Level(level syslog.Level) *withLevel {
-	return WithLevel(f, level)
+type withStatus struct {
+	cause  error
+	status int
+}
+
+func (w *withStatus) Error() string {
+	return w.cause.Error()
+}
+
+func (w *withStatus) Cause() error { return w.cause }
+
+func (w *withStatus) Wrap(message string, args ...interface{}) error {
+	return WithMessage(w, message, args...)
+}
+
+func (w *withStatus) Level(status syslog.Level) *withLevel {
+	return WithLevel(w, status)
+}
+
+func (w *withStatus) Status(status int) *withStatus {
+	return WithStatus(w, status)
 }
 
 // WithStack annotates err with a stack trace at the point WithStack was called.
@@ -196,6 +259,17 @@ func WithStack(err error) error {
 		err,
 		callers(),
 	}
+}
+
+func FindStack(err error) (StackTrace, bool) {
+	if stack, ok := err.(interface{ StackTrace() StackTrace }); ok {
+		return stack.StackTrace(), true
+	}
+
+	if causer, ok := err.(causer); ok {
+		return FindStack(causer.Cause())
+	}
+	return StackTrace{}, false
 }
 
 type withStack struct {
@@ -221,8 +295,16 @@ func (w *withStack) Format(s fmt.State, verb rune) {
 	}
 }
 
+func (w *withStack) StackTrace() StackTrace {
+	return w.stack.StackTrace()
+}
+
 func (w *withStack) Level(level syslog.Level) *withLevel {
 	return WithLevel(w, level)
+}
+
+func (w *withStack) Status(status int) *withStatus {
+	return WithStatus(w, status)
 }
 
 // Wrap returns an error annotating err with a stack trace
@@ -268,7 +350,9 @@ func (w *withMessage) Error() string {
 	return w.msg + ": " + w.cause.Error()
 }
 
-func (w *withMessage) Cause() error { return w.cause }
+func (w *withMessage) Cause() error {
+	return w.cause
+}
 
 func (w *withMessage) Format(s fmt.State, verb rune) {
 	switch verb {
