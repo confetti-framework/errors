@@ -128,7 +128,7 @@ func TestStackTrace(t *testing.T) {
 				"\t.+/github.com/lanvard/errors/stack_test.go:126", // this is the stack of Wrap, not New
 		},
 	}, {
-		Cause(Wrap(New("ooh"), "ahh")), []string{
+		Unwrap(Wrap(New("ooh"), "ahh")), []string{
 			"github.com/lanvard/errors.TestStackTrace\n" +
 				"\t.+/github.com/lanvard/errors/stack_test.go:131", // this is the stack of New
 		},
@@ -140,7 +140,7 @@ func TestStackTrace(t *testing.T) {
 				"\t.+/github.com/lanvard/errors/stack_test.go:136", // this is the stack of New's caller
 		},
 	}, {
-		Cause(func() error {
+		Unwrap(func() error {
 			return func() error {
 				return New("hello %s", fmt.Sprintf("world: %s", "ooh"))
 			}()

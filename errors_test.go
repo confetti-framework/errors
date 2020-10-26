@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"io"
 	net "net/http"
-	"reflect"
 	"testing"
 )
 
@@ -158,7 +157,7 @@ func TestLevelWithDebug(t *testing.T) {
 	assert.Equal(t, log_level.DEBUG, level)
 }
 
-func TestLevelFromCause(t *testing.T) {
+func TestLevelFromUnwrap(t *testing.T) {
 	var err error
 	err = WithLevel(New("database error"), log_level.DEBUG)
 	err = Wrap(err, "system error")
@@ -224,7 +223,7 @@ func TestStatusWithDebug(t *testing.T) {
 	assert.Equal(t, net.StatusBadRequest, level)
 }
 
-func TestStatusFromCause(t *testing.T) {
+func TestStatusFromUnwrap(t *testing.T) {
 	var err error
 	err = WithStatus(New("database error"), net.StatusBadRequest)
 	err = Wrap(err, "system error")
@@ -255,56 +254,6 @@ func TestStatusFluentStatus(t *testing.T) {
 type nilError struct{}
 
 func (nilError) Error() string { return "nil error" }
-
-func TestCause(t *testing.T) {
-	x := New("error")
-	tests := []struct {
-		err  error
-		want error
-	}{{
-		// nil error is nil
-		err:  nil,
-		want: nil,
-	}, {
-		// explicit nil error is nil
-		err:  (error)(nil),
-		want: nil,
-	}, {
-		// typed nil is nil
-		err:  (*nilError)(nil),
-		want: (*nilError)(nil),
-	}, {
-		// uncaused error is unaffected
-		err:  io.EOF,
-		want: io.EOF,
-	}, {
-		// caused error returns cause
-		err:  Wrap(io.EOF, "ignored"),
-		want: io.EOF,
-	}, {
-		err:  x, // return from errors.New
-		want: x,
-	}, {
-		WithMessage(nil, "whoops"),
-		nil,
-	}, {
-		WithMessage(io.EOF, "whoops"),
-		io.EOF,
-	}, {
-		WithStack(nil),
-		nil,
-	}, {
-		WithStack(io.EOF),
-		io.EOF,
-	}}
-
-	for i, tt := range tests {
-		got := Cause(tt.err)
-		if !reflect.DeepEqual(got, tt.want) {
-			t.Errorf("test %d: got %#v, want %#v", i+1, got, tt.want)
-		}
-	}
-}
 
 func TestWrapFormatNil(t *testing.T) {
 	got := Wrap(nil, "no error")
@@ -374,7 +323,7 @@ func TestWithStack(t *testing.T) {
 }
 
 func TestWithMessageNil(t *testing.T) {
-	got := WithMessage(nil, "no error").Cause()
+	got := WithMessage(nil, "no error").Unwrap()
 	if got != nil {
 		t.Errorf("WithMessage(nil, \"no error\"): got %#v, expected nil", got)
 	}
@@ -400,8 +349,8 @@ func TestWithMessage(t *testing.T) {
 
 func TestWithMessagefNil(t *testing.T) {
 	got := WithMessage(nil, "no error")
-	if got.Cause() != nil {
-		t.Errorf("WithMessage(nil, \"no error\"): got %#v, expected nil", got.Cause())
+	if got.Unwrap() != nil {
+		t.Errorf("WithMessage(nil, \"no error\"): got %#v, expected nil", got.Unwrap())
 	}
 	assert.Equal(t, "no error", got.Error())
 }

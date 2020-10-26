@@ -34,22 +34,22 @@
 // to reverse the operation of errors.Wrap to retrieve the original error
 // for inspection. Any error value which implements this interface
 //
-//     type causer interface {
-//             Cause() error
+//     type unwrapper interface {
+//             Unwrap() error
 //     }
 //
-// can be inspected by errors.Cause. errors.Cause will recursively retrieve
-// the topmost error that does not implement causer, which is assumed to be
+// can be inspected by errors.Unwrap. errors.Unwrap will recursively retrieve
+// the topmost error that does not implement unwrapper, which is assumed to be
 // the original cause. For example:
 //
-//     switch err := errors.Cause(err).(type) {
+//     switch err := errors.Unwrap(err).(type) {
 //     case *MyError:
 //             // handle specifically
 //     default:
 //             // unknown error
 //     }
 //
-// Although the causer interface is not exported by this package, it is
+// Although the unwrapper interface is not exported by this package, it is
 // considered a part of its stable public interface.
 //
 // Formatted printing of errors
@@ -57,7 +57,7 @@
 // All error values returned from this package implement fmt.Formatter and can
 // be formatted by the fmt package. The following verbs are supported:
 //
-//     %s    print the error. If the error has a Cause it will be
+//     %s    print the error. If the error has a Unwrap it will be
 //           printed recursively.
 //     %v    see %s
 //     %+v   extended format. Each Frame of the error's StackTrace will
@@ -162,8 +162,8 @@ func FindLevel(err error) (syslog.Level, bool) {
 		return level.level, true
 	}
 
-	if causer, ok := err.(causer); ok {
-		return FindLevel(causer.Cause())
+	if unwrapper, ok := err.(unwrapper); ok {
+		return FindLevel(unwrapper.Unwrap())
 	}
 
 	return level, false
@@ -188,7 +188,7 @@ func (w *withLevel) Error() string {
 	return w.cause.Error()
 }
 
-func (w *withLevel) Cause() error {
+func (w *withLevel) Unwrap() error {
 	return w.cause
 }
 
@@ -209,8 +209,8 @@ func FindStatus(err error) (int, bool) {
 		return result.status, true
 	}
 
-	if causer, ok := err.(causer); ok {
-		return FindStatus(causer.Cause())
+	if unwrapper, ok := err.(unwrapper); ok {
+		return FindStatus(unwrapper.Unwrap())
 	}
 
 	return net.StatusInternalServerError, false
@@ -235,7 +235,7 @@ func (w *withStatus) Error() string {
 	return w.cause.Error()
 }
 
-func (w *withStatus) Cause() error { return w.cause }
+func (w *withStatus) Unwrap() error { return w.cause }
 
 func (w *withStatus) Wrap(message string, args ...interface{}) error {
 	return WithMessage(w, message, args...)
@@ -266,8 +266,8 @@ func FindStack(err error) (StackTrace, bool) {
 		return stack.StackTrace(), true
 	}
 
-	if causer, ok := err.(causer); ok {
-		return FindStack(causer.Cause())
+	if causer, ok := err.(unwrapper); ok {
+		return FindStack(causer.Unwrap())
 	}
 	return StackTrace{}, false
 }
@@ -277,13 +277,13 @@ type withStack struct {
 	*stack
 }
 
-func (w *withStack) Cause() error { return w.error }
+func (w *withStack) Unwrap() error { return w.error }
 
 func (w *withStack) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 'v':
 		if s.Flag('+') {
-			fmt.Fprintf(s, "%+v", w.Cause())
+			fmt.Fprintf(s, "%+v", w.Unwrap())
 			w.stack.Format(s, verb)
 			return
 		}
@@ -350,7 +350,7 @@ func (w *withMessage) Error() string {
 	return w.msg + ": " + w.cause.Error()
 }
 
-func (w *withMessage) Cause() error {
+func (w *withMessage) Unwrap() error {
 	return w.cause
 }
 
@@ -358,7 +358,7 @@ func (w *withMessage) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 'v':
 		if s.Flag('+') {
-			fmt.Fprintf(s, "%+v\n", w.Cause())
+			fmt.Fprintf(s, "%+v\n", w.Unwrap())
 			io.WriteString(s, w.msg)
 			return
 		}
@@ -376,28 +376,28 @@ func (w *withMessage) Wrap(message string, args ...interface{}) *withMessage {
 	return WithMessage(w, message, args...)
 }
 
-// Cause returns the underlying cause of the error, if possible.
+// Unwrap returns the underlying cause of the error, if possible.
 // An error value has a cause if it implements the following
 // interface:
 //
-//     type causer interface {
-//            Cause() error
+//     type unwrapper interface {
+//            Unwrap() error
 //     }
 //
-// If the error does not implement Cause, the original error will
+// If the error does not implement Unwrap, the original error will
 // be returned. If the error is nil, nil will be returned without further
 // investigation.
-func Cause(err error) error {
+func Unwrap(err error) error {
 	for err != nil {
-		cause, ok := err.(causer)
+		unwrapper, ok := err.(unwrapper)
 		if !ok {
 			break
 		}
-		err = cause.Cause()
+		err = unwrapper.Unwrap()
 	}
 	return err
 }
 
-type causer interface {
-	Cause() error
+type unwrapper interface {
+	Unwrap() error
 }

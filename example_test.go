@@ -102,10 +102,10 @@ func fn() error {
 	return errors.Wrap(e3, "outer")
 }
 
-func ExampleCause() {
+func ExampleUnwrap() {
 	err := fn()
 	fmt.Println(err)
-	fmt.Println(errors.Cause(err))
+	fmt.Println(errors.Unwrap(err))
 
 	// Output: outer: middle: inner: error
 	// error
@@ -119,7 +119,7 @@ func ExampleWrap_extended() {
 	// error
 	// github.com/lanvard/errors_test.fn
 	//         /home/dfc/src/github.com/lanvard/errors/example_test.go:47
-	// github.com/lanvard/errors_test.ExampleCause_printf
+	// github.com/lanvard/errors_test.ExampleUnwrap_printf
 	//         /home/dfc/src/github.com/lanvard/errors/example_test.go:63
 	// testing.runExample
 	//         /home/dfc/go/src/testing/example.go:114
@@ -176,7 +176,7 @@ func Example_stackTrace() {
 		StackTrace() errors.StackTrace
 	}
 
-	err, ok := errors.Cause(fn()).(stackTracer)
+	err, ok := errors.Unwrap(fn()).(stackTracer)
 	if !ok {
 		panic("oops, err does not implement stackTracer")
 	}
@@ -191,7 +191,7 @@ func Example_stackTrace() {
 	//	/home/dfc/src/github.com/lanvard/errors/example_test.go:127
 }
 
-func ExampleCause_printf() {
+func ExampleUnwrap_printf() {
 	err := errors.Wrap(func() error {
 		return func() error {
 			return errors.New("hello world")
