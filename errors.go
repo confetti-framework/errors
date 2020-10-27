@@ -157,16 +157,13 @@ func (f *fundamental) Status(status int) *withStatus {
 
 func FindLevel(err error) (syslog.Level, bool) {
 	var level syslog.Level
+	var levelHolder *withLevel
 
-	if level, ok := err.(*withLevel); ok {
-		return level.level, true
+	if !As(err, &levelHolder) {
+		return level, false
 	}
 
-	if unwrapper, ok := err.(unwrapper); ok {
-		return FindLevel(unwrapper.Unwrap())
-	}
-
-	return level, false
+	return levelHolder.level, true
 }
 
 func WithLevel(err error, level syslog.Level) *withLevel {
@@ -205,15 +202,14 @@ func (w *withLevel) Status(status int) *withStatus {
 }
 
 func FindStatus(err error) (int, bool) {
-	if result, ok := err.(*withStatus); ok {
-		return result.status, true
+	var statusHolder *withStatus
+
+	ok := As(err, &statusHolder)
+	if !ok {
+		return net.StatusInternalServerError, false
 	}
 
-	if unwrapper, ok := err.(unwrapper); ok {
-		return FindStatus(unwrapper.Unwrap())
-	}
-
-	return net.StatusInternalServerError, false
+	return statusHolder.status, true
 }
 
 func WithStatus(err error, status int) *withStatus {
@@ -262,14 +258,13 @@ func WithStack(err error) error {
 }
 
 func FindStack(err error) (StackTrace, bool) {
-	if stack, ok := err.(interface{ StackTrace() StackTrace }); ok {
-		return stack.StackTrace(), true
+	var stackHolder interface{ StackTrace() StackTrace }
+
+	if !As(err, &stackHolder) {
+		return StackTrace{}, false
 	}
 
-	if causer, ok := err.(unwrapper); ok {
-		return FindStack(causer.Unwrap())
-	}
-	return StackTrace{}, false
+	return stackHolder.StackTrace(), true
 }
 
 type withStack struct {

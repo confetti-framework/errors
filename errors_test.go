@@ -80,9 +80,9 @@ func TestFundamentalFluentStatus(t *testing.T) {
 	err := New("not found").Status(net.StatusBadRequest)
 	assert.Equal(t, "database error: not found", err.Wrap("database error").Error())
 
-	level, ok := FindStatus(err.Wrap("database error"))
+	status, ok := FindStatus(err.Wrap("database error"))
 	assert.True(t, ok)
-	assert.Equal(t, net.StatusBadRequest, level)
+	assert.Equal(t, net.StatusBadRequest, status)
 }
 
 func TestWrapNil(t *testing.T) {
