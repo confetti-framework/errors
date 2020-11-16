@@ -1,7 +1,11 @@
 package errors
 
 import (
+	stderrors "errors"
 	"fmt"
+	"github.com/lanvard/syslog/log_level"
+	"github.com/stretchr/testify/assert"
+	net "net/http"
 	"runtime"
 	"testing"
 )
@@ -45,7 +49,7 @@ func TestFrameFormat(t *testing.T) {
 	}, {
 		initpc,
 		"%d",
-		"9",
+		"13",
 	}, {
 		0,
 		"%d",
@@ -75,12 +79,12 @@ func TestFrameFormat(t *testing.T) {
 	}, {
 		initpc,
 		"%v",
-		"stack_test.go:9",
+		"stack_test.go:13",
 	}, {
 		initpc,
 		"%+v",
 		"github.com/lanvard/errors.init\n" +
-			"\t.+/github.com/lanvard/errors/stack_test.go:9",
+			"\t.+/github.com/lanvard/errors/stack_test.go:13",
 	}, {
 		0,
 		"%v",
@@ -120,24 +124,24 @@ func TestStackTrace(t *testing.T) {
 	}{{
 		New("ooh"), []string{
 			"github.com/lanvard/errors.TestStackTrace\n" +
-				"\t.+/github.com/lanvard/errors/stack_test.go:121",
+				"\t.+/github.com/lanvard/errors/stack_test.go:125",
 		},
 	}, {
 		Wrap(New("ooh"), "ahh"), []string{
 			"github.com/lanvard/errors.TestStackTrace\n" +
-				"\t.+/github.com/lanvard/errors/stack_test.go:126", // this is the stack of Wrap, not New
+				"\t.+/github.com/lanvard/errors/stack_test.go:130", // this is the stack of Wrap, not New
 		},
 	}, {
 		Unwrap(Wrap(New("ooh"), "ahh")), []string{
 			"github.com/lanvard/errors.TestStackTrace\n" +
-				"\t.+/github.com/lanvard/errors/stack_test.go:131", // this is the stack of New
+				"\t.+/github.com/lanvard/errors/stack_test.go:135", // this is the stack of New
 		},
 	}, {
 		func() error { return New("ooh") }(), []string{
 			`github.com/lanvard/errors.TestStackTrace.func1` +
-				"\n\t.+/github.com/lanvard/errors/stack_test.go:136", // this is the stack of New
+				"\n\t.+/github.com/lanvard/errors/stack_test.go:140", // this is the stack of New
 			"github.com/lanvard/errors.TestStackTrace\n" +
-				"\t.+/github.com/lanvard/errors/stack_test.go:136", // this is the stack of New's caller
+				"\t.+/github.com/lanvard/errors/stack_test.go:140", // this is the stack of New's caller
 		},
 	}, {
 		Unwrap(func() error {
@@ -146,11 +150,11 @@ func TestStackTrace(t *testing.T) {
 			}()
 		}()), []string{
 			`github.com/lanvard/errors.TestStackTrace.func2.1` +
-				"\n\t.+/github.com/lanvard/errors/stack_test.go:145", // this is the stack of New
+				"\n\t.+/github.com/lanvard/errors/stack_test.go:149", // this is the stack of New
 			`github.com/lanvard/errors.TestStackTrace.func2` +
-				"\n\t.+/github.com/lanvard/errors/stack_test.go:146", // this is the stack of New's caller
+				"\n\t.+/github.com/lanvard/errors/stack_test.go:150", // this is the stack of New's caller
 			"github.com/lanvard/errors.TestStackTrace\n" +
-				"\t.+/github.com/lanvard/errors/stack_test.go:147", // this is the stack of New's caller's caller
+				"\t.+/github.com/lanvard/errors/stack_test.go:151", // this is the stack of New's caller's caller
 		},
 	}}
 	for i, tt := range tests {
@@ -220,24 +224,42 @@ func TestStackTraceFormat(t *testing.T) {
 	}, {
 		stackTrace()[:2],
 		"%v",
-		`\[stack_test.go:174 stack_test.go:221\]`,
+		`\[stack_test.go:178 stack_test.go:225\]`,
 	}, {
 		stackTrace()[:2],
 		"%+v",
 		"\n" +
 			"github.com/lanvard/errors.stackTrace\n" +
-			"\t.+/github.com/lanvard/errors/stack_test.go:174\n" +
+			"\t.+/github.com/lanvard/errors/stack_test.go:178\n" +
 			"github.com/lanvard/errors.TestStackTraceFormat\n" +
-			"\t.+/github.com/lanvard/errors/stack_test.go:225",
+			"\t.+/github.com/lanvard/errors/stack_test.go:229",
 	}, {
 		stackTrace()[:2],
 		"%#v",
-		`\[\]errors.Frame{stack_test.go:174, stack_test.go:233}`,
+		`\[\]errors.Frame{stack_test.go:178, stack_test.go:237}`,
 	}}
 
 	for i, tt := range tests {
 		testFormatRegexp(t, i, tt.StackTrace, tt.format, tt.want)
 	}
+}
+
+func TestGetStackTraceFromStatusErr(t *testing.T) {
+	err := New("message").Status(net.StatusNotFound)
+	result := fmt.Sprintf("%+v", err)
+	assert.Contains(t, result, "stack_test.go")
+}
+
+func TestGetStackTraceFromLevelErr(t *testing.T) {
+	err := New("message").Level(log_level.ALERT)
+	result := fmt.Sprintf("%+v", err)
+	assert.Contains(t, result, "stack_test.go")
+}
+
+func TestGetStackTraceFromSimpleErr(t *testing.T) {
+	err := WithStatus(stderrors.New("message"), net.StatusNotFound)
+	result := fmt.Sprintf("%+v", err)
+	assert.Equal(t, "message", result)
 }
 
 // a version of runtime.Caller that returns a Frame, not a uintptr.

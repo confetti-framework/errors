@@ -172,11 +172,7 @@ func ExampleErrorf_extended() {
 }
 
 func Example_stackTrace() {
-	type stackTracer interface {
-		StackTrace() errors.StackTrace
-	}
-
-	err, ok := errors.Unwrap(fn()).(stackTracer)
+	err, ok := errors.Unwrap(fn()).(errors.StackTracer)
 	if !ok {
 		panic("oops, err does not implement stackTracer")
 	}

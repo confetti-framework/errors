@@ -68,7 +68,7 @@
 // New, errorf, Wrap, and Wrap record a stack trace at the point they are
 // invoked. This information can be retrieved with the following interface:
 //
-//     type stackTracer interface {
+//     type StackTracer interface {
 //             StackTrace() errors.StackTrace
 //     }
 //
@@ -80,7 +80,7 @@
 // the fmt.Formatter interface that can be used for printing information about
 // the stack trace of this error. For example:
 //
-//     if err, ok := err.(stackTracer); ok {
+//     if err, ok := err.(StackTracer); ok {
 //             for _, f := range err.StackTrace() {
 //                     fmt.Printf("%+s:%d\n", f, f)
 //             }
@@ -185,12 +185,16 @@ func (w *withLevel) Error() string {
 	return w.cause.Error()
 }
 
-func (w *withLevel) Unwrap() error {
-	return w.cause
+func (w *withLevel) Format(st fmt.State, verb rune) {
+	Format(st, verb, w.cause)
 }
 
-func (w *withLevel) Wrap(message string, args ...interface{}) error {
+func (w *withLevel) Wrap(message string, args ...interface{}) *withMessage {
 	return WithMessage(w, message, args...)
+}
+
+func (w *withLevel) Unwrap() error {
+	return w.cause
 }
 
 func (w *withLevel) Level(level syslog.Level) *withLevel {
@@ -231,11 +235,15 @@ func (w *withStatus) Error() string {
 	return w.cause.Error()
 }
 
-func (w *withStatus) Unwrap() error { return w.cause }
+func (w *withStatus) Format(st fmt.State, verb rune) {
+	Format(st, verb, w.cause)
+}
 
-func (w *withStatus) Wrap(message string, args ...interface{}) error {
+func (w *withStatus) Wrap(message string, args ...interface{}) *withMessage {
 	return WithMessage(w, message, args...)
 }
+
+func (w *withStatus) Unwrap() error { return w.cause }
 
 func (w *withStatus) Level(status syslog.Level) *withLevel {
 	return WithLevel(w, status)
@@ -272,8 +280,6 @@ type withStack struct {
 	*stack
 }
 
-func (w *withStack) Unwrap() error { return w.error }
-
 func (w *withStack) Format(s fmt.State, verb rune) {
 	switch verb {
 	case 'v':
@@ -289,6 +295,12 @@ func (w *withStack) Format(s fmt.State, verb rune) {
 		fmt.Fprintf(s, "%q", w.Error())
 	}
 }
+
+func (w *withStack) Wrap(message string, args ...interface{}) *withMessage {
+	return WithMessage(w, message, args...)
+}
+
+func (w *withStack) Unwrap() error { return w.error }
 
 func (w *withStack) StackTrace() StackTrace {
 	return w.stack.StackTrace()
@@ -339,14 +351,10 @@ type withMessage struct {
 }
 
 func (w *withMessage) Error() string {
-	if w.cause == nil {
+	if w.cause == nil || w.cause.Error() == "" {
 		return w.msg
 	}
 	return w.msg + ": " + w.cause.Error()
-}
-
-func (w *withMessage) Unwrap() error {
-	return w.cause
 }
 
 func (w *withMessage) Format(s fmt.State, verb rune) {
@@ -363,12 +371,20 @@ func (w *withMessage) Format(s fmt.State, verb rune) {
 	}
 }
 
+func (w *withMessage) Wrap(message string, args ...interface{}) *withMessage {
+	return WithMessage(w, message, args...)
+}
+
+func (w *withMessage) Unwrap() error {
+	return w.cause
+}
+
 func (w *withMessage) Level(level syslog.Level) *withLevel {
 	return WithLevel(w, level)
 }
 
-func (w *withMessage) Wrap(message string, args ...interface{}) *withMessage {
-	return WithMessage(w, message, args...)
+func (w *withMessage) Status(status int) *withStatus {
+	return WithStatus(w, status)
 }
 
 // Unwrap returns the underlying cause of the error, if possible.
@@ -395,4 +411,16 @@ func Unwrap(err error) error {
 
 type unwrapper interface {
 	Unwrap() error
+}
+
+type StackTracer interface {
+	StackTrace() StackTrace
+}
+
+func Format(st fmt.State, verb rune, err error) {
+	if cause, ok := err.(interface{ Format(fmt.State, rune) }); ok {
+		cause.Format(st, verb)
+	} else {
+		io.WriteString(st, err.Error())
+	}
 }

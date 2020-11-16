@@ -110,6 +110,12 @@ func TestWrapFormat(t *testing.T) {
 	}
 }
 
+func TestWrapWithEmptyFundamental(t *testing.T) {
+	wrapper := Wrap(New(""), "system error")
+
+	assert.Equal(t, "system error", wrapper.Error())
+}
+
 func TestWrapFluentLevel(t *testing.T) {
 	wrapper := Wrap(New("database error"), "system error")
 	err := wrapper.Level(log_level.ERROR)
