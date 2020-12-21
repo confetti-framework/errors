@@ -94,7 +94,7 @@ package errors
 
 import (
 	"fmt"
-	syslog "github.com/lanvard/syslog/log_level"
+	syslog "github.com/confetti-framework/syslog/log_level"
 	"io"
 	net "net/http"
 )

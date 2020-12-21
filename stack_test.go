@@ -3,7 +3,7 @@ package errors
 import (
 	stderrors "errors"
 	"fmt"
-	"github.com/lanvard/syslog/log_level"
+	"github.com/confetti-framework/syslog/log_level"
 	"github.com/stretchr/testify/assert"
 	net "net/http"
 	"runtime"
@@ -36,8 +36,8 @@ func TestFrameFormat(t *testing.T) {
 	}, {
 		initpc,
 		"%+s",
-		"github.com/lanvard/errors.init\n" +
-			"\t.+/github.com/lanvard/errors/stack_test.go",
+		"github.com/confetti-framework/errors.init\n" +
+			"\t.+/github.com/confetti-framework/errors/stack_test.go",
 	}, {
 		0,
 		"%s",
@@ -83,8 +83,8 @@ func TestFrameFormat(t *testing.T) {
 	}, {
 		initpc,
 		"%+v",
-		"github.com/lanvard/errors.init\n" +
-			"\t.+/github.com/lanvard/errors/stack_test.go:13",
+		"github.com/confetti-framework/errors.init\n" +
+			"\t.+/github.com/confetti-framework/errors/stack_test.go:13",
 	}, {
 		0,
 		"%v",
@@ -102,7 +102,7 @@ func TestFuncname(t *testing.T) {
 	}{
 		{"", ""},
 		{"runtime.main", "main"},
-		{"github.com/lanvard/errors.funcname", "funcname"},
+		{"github.com/confetti-framework/errors.funcname", "funcname"},
 		{"funcname", "funcname"},
 		{"io.copyBuffer", "copyBuffer"},
 		{"main.(*R).Write", "(*R).Write"},
@@ -123,25 +123,25 @@ func TestStackTrace(t *testing.T) {
 		want []string
 	}{{
 		New("ooh"), []string{
-			"github.com/lanvard/errors.TestStackTrace\n" +
-				"\t.+/github.com/lanvard/errors/stack_test.go:125",
+			"github.com/confetti-framework/errors.TestStackTrace\n" +
+				"\t.+/github.com/confetti-framework/errors/stack_test.go:125",
 		},
 	}, {
 		Wrap(New("ooh"), "ahh"), []string{
-			"github.com/lanvard/errors.TestStackTrace\n" +
-				"\t.+/github.com/lanvard/errors/stack_test.go:130", // this is the stack of Wrap, not New
+			"github.com/confetti-framework/errors.TestStackTrace\n" +
+				"\t.+/github.com/confetti-framework/errors/stack_test.go:130", // this is the stack of Wrap, not New
 		},
 	}, {
 		Unwrap(Wrap(New("ooh"), "ahh")), []string{
-			"github.com/lanvard/errors.TestStackTrace\n" +
-				"\t.+/github.com/lanvard/errors/stack_test.go:135", // this is the stack of New
+			"github.com/confetti-framework/errors.TestStackTrace\n" +
+				"\t.+/github.com/confetti-framework/errors/stack_test.go:135", // this is the stack of New
 		},
 	}, {
 		func() error { return New("ooh") }(), []string{
-			`github.com/lanvard/errors.TestStackTrace.func1` +
-				"\n\t.+/github.com/lanvard/errors/stack_test.go:140", // this is the stack of New
-			"github.com/lanvard/errors.TestStackTrace\n" +
-				"\t.+/github.com/lanvard/errors/stack_test.go:140", // this is the stack of New's caller
+			`github.com/confetti-framework/errors.TestStackTrace.func1` +
+				"\n\t.+/github.com/confetti-framework/errors/stack_test.go:140", // this is the stack of New
+			"github.com/confetti-framework/errors.TestStackTrace\n" +
+				"\t.+/github.com/confetti-framework/errors/stack_test.go:140", // this is the stack of New's caller
 		},
 	}, {
 		Unwrap(func() error {
@@ -149,12 +149,12 @@ func TestStackTrace(t *testing.T) {
 				return New("hello %s", fmt.Sprintf("world: %s", "ooh"))
 			}()
 		}()), []string{
-			`github.com/lanvard/errors.TestStackTrace.func2.1` +
-				"\n\t.+/github.com/lanvard/errors/stack_test.go:149", // this is the stack of New
-			`github.com/lanvard/errors.TestStackTrace.func2` +
-				"\n\t.+/github.com/lanvard/errors/stack_test.go:150", // this is the stack of New's caller
-			"github.com/lanvard/errors.TestStackTrace\n" +
-				"\t.+/github.com/lanvard/errors/stack_test.go:151", // this is the stack of New's caller's caller
+			`github.com/confetti-framework/errors.TestStackTrace.func2.1` +
+				"\n\t.+/github.com/confetti-framework/errors/stack_test.go:149", // this is the stack of New
+			`github.com/confetti-framework/errors.TestStackTrace.func2` +
+				"\n\t.+/github.com/confetti-framework/errors/stack_test.go:150", // this is the stack of New's caller
+			"github.com/confetti-framework/errors.TestStackTrace\n" +
+				"\t.+/github.com/confetti-framework/errors/stack_test.go:151", // this is the stack of New's caller's caller
 		},
 	}}
 	for i, tt := range tests {
@@ -229,10 +229,10 @@ func TestStackTraceFormat(t *testing.T) {
 		stackTrace()[:2],
 		"%+v",
 		"\n" +
-			"github.com/lanvard/errors.stackTrace\n" +
-			"\t.+/github.com/lanvard/errors/stack_test.go:178\n" +
-			"github.com/lanvard/errors.TestStackTraceFormat\n" +
-			"\t.+/github.com/lanvard/errors/stack_test.go:229",
+			"github.com/confetti-framework/errors.stackTrace\n" +
+			"\t.+/github.com/confetti-framework/errors/stack_test.go:178\n" +
+			"github.com/confetti-framework/errors.TestStackTraceFormat\n" +
+			"\t.+/github.com/confetti-framework/errors/stack_test.go:229",
 	}, {
 		stackTrace()[:2],
 		"%#v",

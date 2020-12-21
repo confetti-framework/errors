@@ -26,8 +26,8 @@ func TestFormatNew(t *testing.T) {
 		New("error"),
 		"%+v",
 		"error\n" +
-			"github.com/lanvard/errors.TestFormatNew\n" +
-			"\t.+/github.com/lanvard/errors/format_test.go:26",
+			"github.com/confetti-framework/errors.TestFormatNew\n" +
+			"\t.+/github.com/confetti-framework/errors/format_test.go:26",
 	}, {
 		New("error"),
 		"%q",
@@ -56,8 +56,8 @@ func TestFormatErrorf(t *testing.T) {
 		New("%s", "error"),
 		"%+v",
 		"error\n" +
-			"github.com/lanvard/errors.TestFormatErrorf\n" +
-			"\t.+/github.com/lanvard/errors/format_test.go:56",
+			"github.com/confetti-framework/errors.TestFormatErrorf\n" +
+			"\t.+/github.com/confetti-framework/errors/format_test.go:56",
 	}}
 
 	for i, tt := range tests {
@@ -82,8 +82,8 @@ func TestFormatWrap(t *testing.T) {
 		Wrap(New("error"), "error2"),
 		"%+v",
 		"error\n" +
-			"github.com/lanvard/errors.TestFormatWrap\n" +
-			"\t.+/github.com/lanvard/errors/format_test.go:82",
+			"github.com/confetti-framework/errors.TestFormatWrap\n" +
+			"\t.+/github.com/confetti-framework/errors/format_test.go:82",
 	}, {
 		Wrap(io.EOF, "error"),
 		"%s",
@@ -97,15 +97,15 @@ func TestFormatWrap(t *testing.T) {
 		"%+v",
 		"EOF\n" +
 			"error\n" +
-			"github.com/lanvard/errors.TestFormatWrap\n" +
-			"\t.+/github.com/lanvard/errors/format_test.go:96",
+			"github.com/confetti-framework/errors.TestFormatWrap\n" +
+			"\t.+/github.com/confetti-framework/errors/format_test.go:96",
 	}, {
 		Wrap(Wrap(io.EOF, "error1"), "error2"),
 		"%+v",
 		"EOF\n" +
 			"error1\n" +
-			"github.com/lanvard/errors.TestFormatWrap\n" +
-			"\t.+/github.com/lanvard/errors/format_test.go:103\n",
+			"github.com/confetti-framework/errors.TestFormatWrap\n" +
+			"\t.+/github.com/confetti-framework/errors/format_test.go:103\n",
 	}, {
 		Wrap(New("error with space"), "context"),
 		"%q",
@@ -135,8 +135,8 @@ func TestFormatWrapFormat(t *testing.T) {
 		"%+v",
 		"EOF\n" +
 			"error2\n" +
-			"github.com/lanvard/errors.TestFormatWrap\n" +
-			"\t.+/github.com/lanvard/errors/format_test.go:134",
+			"github.com/confetti-framework/errors.TestFormatWrap\n" +
+			"\t.+/github.com/confetti-framework/errors/format_test.go:134",
 	}, {
 		Wrap(New("error"), "error%d", 2),
 		"%s",
@@ -149,8 +149,8 @@ func TestFormatWrapFormat(t *testing.T) {
 		Wrap(New("error"), "error%d", 2),
 		"%+v",
 		"error\n" +
-			"github.com/lanvard/errors.TestFormatWrap\n" +
-			"\t.+/github.com/lanvard/errors/format_test.go:149",
+			"github.com/confetti-framework/errors.TestFormatWrap\n" +
+			"\t.+/github.com/confetti-framework/errors/format_test.go:149",
 	}}
 
 	for i, tt := range tests {
@@ -175,8 +175,8 @@ func TestFormatWithStack(t *testing.T) {
 		WithStack(io.EOF),
 		"%+v",
 		[]string{"EOF",
-			"github.com/lanvard/errors.TestFormatWithStack\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:175"},
+			"github.com/confetti-framework/errors.TestFormatWithStack\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:175"},
 	}, {
 		WithStack(New("error")),
 		"%s",
@@ -189,37 +189,37 @@ func TestFormatWithStack(t *testing.T) {
 		WithStack(New("error")),
 		"%+v",
 		[]string{"error",
-			"github.com/lanvard/errors.TestFormatWithStack\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:189",
-			"github.com/lanvard/errors.TestFormatWithStack\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:189"},
+			"github.com/confetti-framework/errors.TestFormatWithStack\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:189",
+			"github.com/confetti-framework/errors.TestFormatWithStack\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:189"},
 	}, {
 		WithStack(WithStack(io.EOF)),
 		"%+v",
 		[]string{"EOF",
-			"github.com/lanvard/errors.TestFormatWithStack\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:197",
-			"github.com/lanvard/errors.TestFormatWithStack\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:197"},
+			"github.com/confetti-framework/errors.TestFormatWithStack\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:197",
+			"github.com/confetti-framework/errors.TestFormatWithStack\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:197"},
 	}, {
 		WithStack(WithStack(Wrap(io.EOF, "message"))),
 		"%+v",
 		[]string{"EOF",
 			"message",
-			"github.com/lanvard/errors.TestFormatWithStack\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:205",
-			"github.com/lanvard/errors.TestFormatWithStack\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:205",
-			"github.com/lanvard/errors.TestFormatWithStack\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:205"},
+			"github.com/confetti-framework/errors.TestFormatWithStack\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:205",
+			"github.com/confetti-framework/errors.TestFormatWithStack\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:205",
+			"github.com/confetti-framework/errors.TestFormatWithStack\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:205"},
 	}, {
 		WithStack(New("error%d", 1)),
 		"%+v",
 		[]string{"error1",
-			"github.com/lanvard/errors.TestFormatWithStack\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:216",
-			"github.com/lanvard/errors.TestFormatWithStack\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:216"},
+			"github.com/confetti-framework/errors.TestFormatWithStack\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:216",
+			"github.com/confetti-framework/errors.TestFormatWithStack\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:216"},
 	}}
 
 	for i, tt := range tests {
@@ -245,8 +245,8 @@ func TestFormatWithMessage(t *testing.T) {
 		"%+v",
 		[]string{
 			"error",
-			"github.com/lanvard/errors.TestFormatWithMessage\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:244",
+			"github.com/confetti-framework/errors.TestFormatWithMessage\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:244",
 			"error2"},
 	}, {
 		WithMessage(io.EOF, "addition1"),
@@ -272,33 +272,33 @@ func TestFormatWithMessage(t *testing.T) {
 		Wrap(WithMessage(io.EOF, "error1"), "error2"),
 		"%+v",
 		[]string{"EOF", "error1", "error2",
-			"github.com/lanvard/errors.TestFormatWithMessage\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:272"},
+			"github.com/confetti-framework/errors.TestFormatWithMessage\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:272"},
 	}, {
 		WithMessage(New("error%d", 1), "error2"),
 		"%+v",
 		[]string{"error1",
-			"github.com/lanvard/errors.TestFormatWithMessage\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:278",
+			"github.com/confetti-framework/errors.TestFormatWithMessage\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:278",
 			"error2"},
 	}, {
 		WithMessage(WithStack(io.EOF), "error"),
 		"%+v",
 		[]string{
 			"EOF",
-			"github.com/lanvard/errors.TestFormatWithMessage\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:285",
+			"github.com/confetti-framework/errors.TestFormatWithMessage\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:285",
 			"error"},
 	}, {
 		WithMessage(Wrap(WithStack(io.EOF), "inside-error"), "outside-error"),
 		"%+v",
 		[]string{
 			"EOF",
-			"github.com/lanvard/errors.TestFormatWithMessage\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:293",
+			"github.com/confetti-framework/errors.TestFormatWithMessage\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:293",
 			"inside-error",
-			"github.com/lanvard/errors.TestFormatWithMessage\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:293",
+			"github.com/confetti-framework/errors.TestFormatWithMessage\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:293",
 			"outside-error"},
 	}}
 
@@ -314,12 +314,12 @@ func TestFormatGeneric(t *testing.T) {
 	}{
 		{New("new-error"), []string{
 			"new-error",
-			"github.com/lanvard/errors.TestFormatGeneric\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:315"},
+			"github.com/confetti-framework/errors.TestFormatGeneric\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:315"},
 		}, {New("errorf-error"), []string{
 			"errorf-error",
-			"github.com/lanvard/errors.TestFormatGeneric\n" +
-				"\t.+/github.com/lanvard/errors/format_test.go:319"},
+			"github.com/confetti-framework/errors.TestFormatGeneric\n" +
+				"\t.+/github.com/confetti-framework/errors/format_test.go:319"},
 		}, {errors.New("errors-new-error"), []string{
 			"errors-new-error"},
 		},
@@ -332,22 +332,22 @@ func TestFormatGeneric(t *testing.T) {
 		}, {
 			func(err error) error { return WithStack(err) },
 			[]string{
-				"github.com/lanvard/errors.(func·002|TestFormatGeneric.func2)\n\t" +
-					".+/github.com/lanvard/errors/format_test.go:333",
+				"github.com/confetti-framework/errors.(func·002|TestFormatGeneric.func2)\n\t" +
+					".+/github.com/confetti-framework/errors/format_test.go:333",
 			},
 		}, {
 			func(err error) error { return Wrap(err, "wrap-error") },
 			[]string{
 				"wrap-error",
-				"github.com/lanvard/errors.(func·003|TestFormatGeneric.func3)\n\t" +
-					".+/github.com/lanvard/errors/format_test.go:339",
+				"github.com/confetti-framework/errors.(func·003|TestFormatGeneric.func3)\n\t" +
+					".+/github.com/confetti-framework/errors/format_test.go:339",
 			},
 		}, {
 			func(err error) error { return Wrap(err, "wrap-error%d", 1) },
 			[]string{
 				"wrap-error1",
-				"github.com/lanvard/errors.(func·004|TestFormatGeneric.func4)\n\t" +
-					".+/github.com/lanvard/errors/format_test.go:346",
+				"github.com/confetti-framework/errors.(func·004|TestFormatGeneric.func4)\n\t" +
+					".+/github.com/confetti-framework/errors/format_test.go:346",
 			},
 		},
 	}
@@ -373,10 +373,10 @@ func TestFormatWrappedNew(t *testing.T) {
 		wrappedNew("error"),
 		"%+v",
 		"error\n" +
-			"github.com/lanvard/errors.wrappedNew\n" +
-			"\t.+/github.com/lanvard/errors/format_test.go:364\n" +
-			"github.com/lanvard/errors.TestFormatWrappedNew\n" +
-			"\t.+/github.com/lanvard/errors/format_test.go:373",
+			"github.com/confetti-framework/errors.wrappedNew\n" +
+			"\t.+/github.com/confetti-framework/errors/format_test.go:364\n" +
+			"github.com/confetti-framework/errors.TestFormatWrappedNew\n" +
+			"\t.+/github.com/confetti-framework/errors/format_test.go:373",
 	}}
 
 	for i, tt := range tests {

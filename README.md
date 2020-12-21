@@ -1,8 +1,8 @@
-# errors [![Travis-CI](https://travis-ci.org/lanvard/errors.svg)](https://travis-ci.org/lanvard/errors) [![AppVeyor](https://ci.appveyor.com/api/projects/status/b98mptawhudj53ep/branch/master?svg=true)](https://ci.appveyor.com/project/davecheney/errors/branch/master) [![GoDoc](https://godoc.org/github.com/lanvard/errors?status.svg)](http://godoc.org/github.com/lanvard/errors) [![Report card](https://goreportcard.com/badge/github.com/lanvard/errors)](https://goreportcard.com/report/github.com/lanvard/errors) [![Sourcegraph](https://sourcegraph.com/github.com/lanvard/errors/-/badge.svg)](https://sourcegraph.com/github.com/lanvard/errors?badge)
+# errors [![Travis-CI](https://travis-ci.org/confetti-framework/errors.svg)](https://travis-ci.org/confetti-framework/errors) [![AppVeyor](https://ci.appveyor.com/api/projects/status/b98mptawhudj53ep/branch/master?svg=true)](https://ci.appveyor.com/project/davecheney/errors/branch/master) [![GoDoc](https://godoc.org/github.com/confetti-framework/errors?status.svg)](http://godoc.org/github.com/confetti-framework/errors) [![Report card](https://goreportcard.com/badge/github.com/confetti-framework/errors)](https://goreportcard.com/report/github.com/confetti-framework/errors) [![Sourcegraph](https://sourcegraph.com/github.com/confetti-framework/errors/-/badge.svg)](https://sourcegraph.com/github.com/confetti-framework/errors?badge)
 
 Package errors provides simple error handling primitives.
 
-`go get github.com/lanvard/errors`
+`go get github.com/confetti-framework/errors`
 
 The traditional error handling idiom in Go is roughly akin to
 ```go
@@ -43,7 +43,7 @@ default:
 }
 ```
 
-[Read the package documentation for more information](https://godoc.org/github.com/lanvard/errors).
+[Read the package documentation for more information](https://godoc.org/github.com/confetti-framework/errors).
 
 ## Roadmap
 
