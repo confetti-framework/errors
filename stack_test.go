@@ -37,7 +37,7 @@ func TestFrameFormat(t *testing.T) {
 		initpc,
 		"%+s",
 		"github.com/confetti-framework/errors.init\n" +
-			"\t.+/github.com/confetti-framework/errors/stack_test.go",
+			"\t.+/errors/stack_test.go",
 	}, {
 		0,
 		"%s",
@@ -84,7 +84,7 @@ func TestFrameFormat(t *testing.T) {
 		initpc,
 		"%+v",
 		"github.com/confetti-framework/errors.init\n" +
-			"\t.+/github.com/confetti-framework/errors/stack_test.go:13",
+			"\t.+/errors/stack_test.go:13",
 	}, {
 		0,
 		"%v",
@@ -124,24 +124,24 @@ func TestStackTrace(t *testing.T) {
 	}{{
 		New("ooh"), []string{
 			"github.com/confetti-framework/errors.TestStackTrace\n" +
-				"\t.+/github.com/confetti-framework/errors/stack_test.go:125",
+				"\t.+/errors/stack_test.go:125",
 		},
 	}, {
 		Wrap(New("ooh"), "ahh"), []string{
 			"github.com/confetti-framework/errors.TestStackTrace\n" +
-				"\t.+/github.com/confetti-framework/errors/stack_test.go:130", // this is the stack of Wrap, not New
+				"\t.+/errors/stack_test.go:130", // this is the stack of Wrap, not New
 		},
 	}, {
 		Unwrap(Wrap(New("ooh"), "ahh")), []string{
 			"github.com/confetti-framework/errors.TestStackTrace\n" +
-				"\t.+/github.com/confetti-framework/errors/stack_test.go:135", // this is the stack of New
+				"\t.+/errors/stack_test.go:135", // this is the stack of New
 		},
 	}, {
 		func() error { return New("ooh") }(), []string{
 			`github.com/confetti-framework/errors.TestStackTrace.func1` +
-				"\n\t.+/github.com/confetti-framework/errors/stack_test.go:140", // this is the stack of New
+				"\n\t.+/errors/stack_test.go:140", // this is the stack of New
 			"github.com/confetti-framework/errors.TestStackTrace\n" +
-				"\t.+/github.com/confetti-framework/errors/stack_test.go:140", // this is the stack of New's caller
+				"\t.+/errors/stack_test.go:140", // this is the stack of New's caller
 		},
 	}, {
 		Unwrap(func() error {
@@ -150,11 +150,11 @@ func TestStackTrace(t *testing.T) {
 			}()
 		}()), []string{
 			`github.com/confetti-framework/errors.TestStackTrace.func2.1` +
-				"\n\t.+/github.com/confetti-framework/errors/stack_test.go:149", // this is the stack of New
+				"\n\t.+/errors/stack_test.go:149", // this is the stack of New
 			`github.com/confetti-framework/errors.TestStackTrace.func2` +
-				"\n\t.+/github.com/confetti-framework/errors/stack_test.go:150", // this is the stack of New's caller
+				"\n\t.+/errors/stack_test.go:150", // this is the stack of New's caller
 			"github.com/confetti-framework/errors.TestStackTrace\n" +
-				"\t.+/github.com/confetti-framework/errors/stack_test.go:151", // this is the stack of New's caller's caller
+				"\t.+/errors/stack_test.go:151", // this is the stack of New's caller's caller
 		},
 	}}
 	for i, tt := range tests {
@@ -230,9 +230,9 @@ func TestStackTraceFormat(t *testing.T) {
 		"%+v",
 		"\n" +
 			"github.com/confetti-framework/errors.stackTrace\n" +
-			"\t.+/github.com/confetti-framework/errors/stack_test.go:178\n" +
+			"\t.+/errors/stack_test.go:178\n" +
 			"github.com/confetti-framework/errors.TestStackTraceFormat\n" +
-			"\t.+/github.com/confetti-framework/errors/stack_test.go:229",
+			"\t.+/errors/stack_test.go:229",
 	}, {
 		stackTrace()[:2],
 		"%#v",

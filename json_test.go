@@ -12,7 +12,7 @@ func TestFrameMarshalText(t *testing.T) {
 		want string
 	}{{
 		initpc,
-		`^github.com/confetti-framework/errors\.init(\.ializers)? .+/github\.com/confetti-framework/errors/stack_test.go:\d+$`,
+		`errors\.init(\.ializers)? .+/errors/stack_test.go:\d+$`,
 	}, {
 		0,
 		`^unknown$`,
@@ -34,7 +34,7 @@ func TestFrameMarshalJSON(t *testing.T) {
 		want string
 	}{{
 		initpc,
-		`^"github\.com/confetti-framework/errors\.init(\.ializers)? .+/github\.com/confetti-framework/errors/stack_test.go:\d+"$`,
+		`^"github\.com/confetti-framework/errors\.init(\.ializers)? .+errors/stack_test.go:\d+"$`,
 	}, {
 		0,
 		`^"unknown"$`,
