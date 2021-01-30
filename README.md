@@ -1,5 +1,4 @@
 # Errors
-[![Travis-CI](https://travis-ci.org/confetti-framework/errors.svg)](https://travis-ci.org/confetti-framework/errors) [![AppVeyor](https://ci.appveyor.com/api/projects/status/b98mptawhudj53ep/branch/master?svg=true)](https://ci.appveyor.com/project/davecheney/errors/branch/master) [![GoDoc](https://godoc.org/github.com/confetti-framework/errors?status.svg)](http://godoc.org/github.com/confetti-framework/errors) [![Report card](https://goreportcard.com/badge/github.com/confetti-framework/errors)](https://goreportcard.com/report/github.com/confetti-framework/errors) [![Sourcegraph](https://sourcegraph.com/github.com/confetti-framework/errors/-/badge.svg)](https://sourcegraph.com/github.com/confetti-framework/errors?badge)
 
 Package errors provides simple error handling primitives.
 
