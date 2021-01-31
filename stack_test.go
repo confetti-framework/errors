@@ -262,6 +262,12 @@ func TestGetStackTraceFromSimpleErr(t *testing.T) {
 	assert.Equal(t, "message", result)
 }
 
+func TestGetStackTraceByWithMethod(t *testing.T) {
+	err := WithStatus(stderrors.New("message"), net.StatusNotFound)
+	result := fmt.Sprintf("%+v", err)
+	assert.Equal(t, "message", result)
+}
+
 // a version of runtime.Caller that returns a Frame, not a uintptr.
 func caller() Frame {
 	var pcs [3]uintptr

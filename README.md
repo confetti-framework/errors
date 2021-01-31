@@ -1,4 +1,4 @@
-# errors [![Travis-CI](https://travis-ci.org/confetti-framework/errors.svg)](https://travis-ci.org/confetti-framework/errors) [![AppVeyor](https://ci.appveyor.com/api/projects/status/b98mptawhudj53ep/branch/master?svg=true)](https://ci.appveyor.com/project/davecheney/errors/branch/master) [![GoDoc](https://godoc.org/github.com/confetti-framework/errors?status.svg)](http://godoc.org/github.com/confetti-framework/errors) [![Report card](https://goreportcard.com/badge/github.com/confetti-framework/errors)](https://goreportcard.com/report/github.com/confetti-framework/errors) [![Sourcegraph](https://sourcegraph.com/github.com/confetti-framework/errors/-/badge.svg)](https://sourcegraph.com/github.com/confetti-framework/errors?badge)
+# Errors
 
 Package errors provides simple error handling primitives.
 
@@ -43,21 +43,6 @@ default:
 }
 ```
 
-[Read the package documentation for more information](https://godoc.org/github.com/confetti-framework/errors).
-
-## Roadmap
-
-With the upcoming [Go2 error proposals](https://go.googlesource.com/proposal/+/master/design/go2draft.md) this package is moving into maintenance mode. The roadmap for a 1.0 release is as follows:
-
-- 0.9. Remove pre Go 1.9 and Go 1.10 support, address outstanding pull requests (if possible)
-- 1.0. Final release.
-
 ## Contributing
 
-Because of the Go2 errors changes, this package is not accepting proposals for new functionality. With that said, we welcome pull requests, bug fixes and issue reports. 
-
 Before sending a PR, please discuss your change by raising an issue.
-
-## License
-
-BSD-2-Clause
