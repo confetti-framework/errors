@@ -43,6 +43,11 @@ default:
 }
 ```
 
+<<<<<<< HEAD
+=======
+[Read the package documentation for more information](https://godoc.org/github.com/confetti-framework/errors).
+
+>>>>>>> 762b551bf121c3fb7483623472bf3090cafff8d7
 ## Contributing
 
 Before sending a PR, please discuss your change by raising an issue.
