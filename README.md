@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/confetti-framework/errors/branch/main/graph/badge.svg?token=8ANZG4V48V)](https://codecov.io/gh/confetti-framework/errors)
+
 # Errors
 
 Package errors provides simple error handling primitives.
